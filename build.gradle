@@ -1,0 +1,46 @@
+buildscript {
+    repositories {
+        maven { url 'https://projects.itemis.de/nexus/content/repositories/mbeddr' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'de.itemis.mps:mps-gradle-plugin:1.2+'
+    }
+}
+
+repositories {
+    maven { url 'https://projects.itemis.de/nexus/content/repositories/mbeddr' }
+    mavenCentral()
+}
+
+
+import de.itemis.mps.gradle.*
+apply plugin: 'base'
+
+// Dependency versions
+ext.mpsVersion = '2018.3'
+ext.mpsExtensionsVersion = "2018.3.+"
+
+configurations {
+    projectDependencies
+	mps
+}
+
+dependencies {
+	projectDependencies "de.itemis.mps:extensions:$mpsExtensionsVersion"
+	mps "com.jetbrains:mps:$mpsVersion"
+}
+
+task downloadDependencies(type: Copy) {
+    dependsOn configurations.projectDependencies
+    from {
+        configurations.projectDependencies.resolve().collect { zipTree(it) }
+	} into "lib"
+}
+
+task downloadMPS(type: Copy) {
+    dependsOn configurations.mps
+    from {
+        configurations.mps.resolve().collect { zipTree(it) }
+	} into "mps"
+}
